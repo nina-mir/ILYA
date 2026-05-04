@@ -1,0 +1,420 @@
+/* =========================================================================
+   ILYA — Editorial system foundation
+   Linen Cream paper. Umber ink. No rounded corners. No shadows. No gradients.
+   ========================================================================= */
+
+:root {
+  --linen:        #EDE3D0;
+  --linen-deep:   color-mix(in oklch, #EDE3D0 88%, #1E1813);
+  --umber:        #1E1813;
+  --umber-soft:   color-mix(in oklch, #1E1813 70%, #EDE3D0);
+  --umber-faint:  color-mix(in oklch, #1E1813 35%, #EDE3D0);
+  --rule:         #1E1813;
+  --rule-faint:   color-mix(in oklch, #1E1813 22%, #EDE3D0);
+  --prussian:     #1D3557;
+  --ochre:        #B07229;
+  --brick:        #8C2E1E;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 20px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 72px;
+  --space-8: 120px;
+
+  --serif: 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif;
+  --fell: 'IM Fell English', 'Garamond', 'Times New Roman', serif;
+  --fell-sc: 'IM Fell English SC', 'IM Fell English', 'Garamond', serif;
+}
+
+/* No rounded corners or shadows anywhere we control. */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  background: var(--linen);
+  color: var(--umber);
+  font-family: var(--fell);
+  font-size: 17px;
+  line-height: 1.55;
+  font-feature-settings: 'liga' 1, 'kern' 1;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Prevent iOS zoom on focus by keeping inputs ≥16px. */
+input, textarea, button {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  user-select: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--ochre);
+  color: var(--linen);
+}
+
+/* Typography classes ----------------------------------------------------- */
+
+.t-masthead {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  font-size: clamp(40px, 9vw, 84px);
+}
+
+.t-display {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  line-height: 1.05;
+  font-size: clamp(32px, 7vw, 44px);
+  font-feature-settings: 'onum' 1, 'kern' 1;
+}
+
+.t-headline {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  line-height: 1.15;
+  font-size: 28px;
+  font-feature-settings: 'onum' 1, 'kern' 1;
+}
+
+.t-subhead {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  font-size: 20px;
+}
+
+.t-body {
+  font-family: var(--fell);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.t-body-italic {
+  font-family: var(--fell);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.t-byline {
+  font-family: var(--fell);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  color: var(--umber-soft);
+}
+
+.t-kicker {
+  font-family: var(--fell-sc);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--brick);
+}
+
+.t-kicker--ochre { color: var(--ochre); }
+.t-kicker--umber { color: var(--umber); }
+
+.t-label {
+  font-family: var(--fell-sc);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--umber);
+}
+
+.t-folio {
+  font-family: var(--fell);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--umber-soft);
+}
+
+.t-caption {
+  font-family: var(--fell);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--umber-faint);
+}
+
+.t-caption--italic {
+  font-style: italic;
+}
+
+/* Rules ------------------------------------------------------------------- */
+
+.rule-single {
+  height: 1px;
+  background: var(--umber);
+  width: 100%;
+}
+
+.rule-heavy {
+  height: 2px;
+  background: var(--umber);
+  width: 100%;
+}
+
+.rule-faint {
+  height: 1px;
+  background: var(--rule-faint);
+  width: 100%;
+}
+
+/* Double rule: two 1px rules with 4px between them. Used as a wrapper
+   that contains its child centered between the two rules. */
+.rule-double {
+  position: relative;
+  padding: 6px 0;
+  border-top: 1px solid var(--umber);
+  border-bottom: 1px solid var(--umber);
+}
+
+/* Triple rule: 1 / 0.5 / 1 stack. */
+.rule-triple {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+.rule-triple::before,
+.rule-triple::after,
+.rule-triple > i {
+  content: '';
+  display: block;
+  background: var(--umber);
+}
+.rule-triple::before { height: 1px; }
+.rule-triple > i { height: 1px; transform: scaleY(0.5); transform-origin: center; }
+.rule-triple::after  { height: 1px; }
+
+/* Buttons ----------------------------------------------------------------- */
+
+.btn-primary {
+  background: transparent;
+  border: 0;
+  padding: 12px 28px;
+  font-family: var(--fell-sc);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--umber);
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  min-height: 42px;
+  line-height: 1;
+}
+.btn-primary::before,
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--umber);
+  transition: background-color 120ms ease, height 120ms ease;
+}
+.btn-primary::before { top: 0; }
+.btn-primary::after { bottom: 0; }
+.btn-primary:hover { color: var(--brick); }
+.btn-primary:hover::before,
+.btn-primary:hover::after {
+  background: var(--brick);
+  height: 2px;
+}
+.btn-primary:disabled {
+  color: var(--umber-faint);
+  cursor: not-allowed;
+}
+.btn-primary:disabled::before,
+.btn-primary:disabled::after {
+  background: var(--rule-faint);
+  height: 1px;
+}
+
+.btn-primary--brick {
+  color: var(--brick);
+}
+.btn-primary--brick::before,
+.btn-primary--brick::after {
+  background: var(--brick);
+}
+.btn-primary--brick:hover { color: var(--brick); }
+.btn-primary--brick:hover::before,
+.btn-primary--brick:hover::after {
+  background: var(--brick);
+  height: 2px;
+}
+
+/* Typographic link in Smallcaps Label, no rules, ochre on hover. */
+.linklabel {
+  font-family: var(--fell-sc);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--umber);
+  cursor: pointer;
+  transition: color 120ms ease;
+  background: transparent;
+  border: 0;
+  padding: 8px 0;
+  display: inline-block;
+  line-height: 1;
+}
+.linklabel:hover { color: var(--brick); }
+.linklabel:disabled { color: var(--umber-faint); cursor: not-allowed; }
+.linklabel--brick { color: var(--brick); }
+
+/* Inputs ------------------------------------------------------------------ */
+
+.input {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--umber);
+  padding: 10px 0;
+  font-family: var(--fell);
+  font-size: 17px;
+  color: var(--umber);
+  width: 100%;
+  outline: 0;
+  transition: border-color 120ms ease, border-width 120ms ease;
+}
+.input:focus {
+  border-bottom: 2px solid var(--ochre);
+  padding-bottom: 9px;
+}
+.input::placeholder {
+  color: var(--umber-faint);
+  font-style: italic;
+}
+.input.error {
+  border-bottom-color: var(--brick);
+}
+
+.input-label {
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.input-helper {
+  margin-top: var(--space-2);
+  font-style: italic;
+  color: var(--umber-soft);
+  font-size: 13px;
+}
+.input-helper--error {
+  color: var(--brick);
+}
+
+/* Page shell -------------------------------------------------------------- */
+
+.page {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.measure {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+
+@media (max-width: 600px) {
+  .measure { padding: 0 var(--space-4); }
+}
+
+/* Route fade through linen (used by view transitions and a fallback). */
+@keyframes ilya-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.route-enter {
+  animation: ilya-fade-in 200ms ease forwards;
+}
+
+/* View Transitions API: 200ms fade through linen. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease;
+}
+::view-transition-old(root) {
+  animation-name: ilya-fade-in;
+  animation-direction: reverse;
+}
+::view-transition-new(root) {
+  animation-name: ilya-fade-in;
+}
+
+/* Old-style figures default for prose, lining tabular for metadata. */
+.nums-old { font-feature-settings: 'onum' 1; }
+.nums-lining { font-feature-settings: 'lnum' 1, 'tnum' 1; }
+
+/* Pinned COLOPHON link — used on the entry page so the maker's info
+   is reachable even before sign-in. Sits at the bottom centre of the
+   viewport, quiet and small, with safe-area inset on iOS so it
+   clears the home indicator. */
+.colophon-pinned {
+  position: fixed;
+  left: 50%;
+  bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  color: var(--umber-faint);
+  /* Bumped from 10px. Below ~11px, smallcaps in a serif face is
+     genuinely difficult to read at arm's length. */
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  padding: 10px 14px;
+  z-index: 50;
+  background: transparent;
+}
+.colophon-pinned:hover {
+  color: var(--brick);
+}

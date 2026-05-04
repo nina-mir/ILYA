@@ -1,0 +1,817 @@
+/* The editor — typeset prose with a minimal floating toolbar.
+   Designed to feel like a typeset book on a single sheet of linen. */
+
+.editor-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-error {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+  color: var(--umber-soft);
+}
+
+/* Top chrome -------------------------------------------------------------- */
+
+.editor-chrome {
+  position: sticky;
+  top: 0;
+  background: var(--linen);
+  z-index: 10;
+}
+
+.editor-chrome-row {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5);
+  display: grid;
+  /* Three columns on desktop: left cluster (back + contents), save
+     indicator centred, WITHDRAW pinned right. Below 600px the
+     WITHDRAW button hides via `.editor-withdraw-link`'s media query
+     and the grid degrades to two visible cells; we don't need to
+     change grid-template-columns for that — the empty cell just
+     collapses. */
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (max-width: 600px) {
+  .editor-chrome-row {
+    padding: var(--space-2) var(--space-4);
+    gap: var(--space-2);
+    /* On mobile the withdraw cell is hidden, so collapse to two
+       columns: left cluster + save indicator pinned right. */
+    grid-template-columns: 1fr auto;
+  }
+}
+
+.editor-chrome-row > :first-child { justify-self: start; }
+.editor-chrome-row > :last-child { justify-self: end; }
+
+/* WITHDRAW chrome link: visible on desktop, hidden on mobile (the
+   Chapter Navigation drawer footer is the canonical place on mobile,
+   so two visible affordances would be redundant). The link shows
+   only when the edition is fully loaded. */
+.editor-withdraw-link {
+  color: var(--umber-faint);
+  letter-spacing: 0.18em;
+  font-size: 11px;
+}
+.editor-withdraw-link:hover { color: var(--brick); }
+.editor-withdraw-link:disabled { color: transparent; cursor: default; }
+
+@media (max-width: 600px) {
+  .editor-withdraw-link { display: none; }
+}
+
+.editor-save {
+  font-family: var(--fell-sc);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--umber-faint);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  min-height: 18px;
+  font-feature-settings: 'lnum' 1, 'tnum' 1;
+  transition: color 200ms ease;
+}
+.editor-save em {
+  font-family: var(--fell);
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.editor-save-dash {
+  color: var(--umber-faint);
+  font-family: var(--fell);
+  font-style: normal;
+}
+.editor-save.is-pending,
+.editor-save.is-saving {
+  color: var(--ochre);
+}
+.editor-save.is-saved {
+  color: var(--umber-soft);
+  animation: save-flash 600ms ease;
+}
+.editor-save.is-error {
+  color: var(--brick);
+}
+@keyframes save-flash {
+  0% { color: var(--ochre); }
+  100% { color: var(--umber-soft); }
+}
+
+/* Page shell -------------------------------------------------------------- */
+
+.editor-shell {
+  flex: 1;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-5) var(--space-7);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 600px) {
+  .editor-shell {
+    padding: var(--space-4) var(--space-4) var(--space-6);
+  }
+}
+
+/* Frontmatter ------------------------------------------------------------- */
+
+.editor-frontmatter {
+  margin-bottom: var(--space-6);
+  text-align: center;
+  padding: var(--space-5) 0 var(--space-4);
+}
+
+.editor-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(36px, 7vw, 56px);
+  letter-spacing: 0.005em;
+  line-height: 1.05;
+  margin: 0;
+  color: var(--umber);
+  font-feature-settings: 'onum' 1, 'kern' 1;
+  font-style: italic;
+}
+
+.editor-byline {
+  margin-top: var(--space-3);
+  color: var(--umber-soft);
+  font-size: 16px;
+}
+
+.editor-frontmatter-rule {
+  width: 64px;
+  height: 1px;
+  background: var(--umber);
+  margin: var(--space-5) auto 0;
+}
+
+/* Footer ------------------------------------------------------------------ */
+
+.editor-foot {
+  margin-top: var(--space-7);
+  padding-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.editor-foot-rule {
+  width: 32px;
+  height: 1px;
+  background: var(--umber-faint);
+}
+
+.editor-foot-meta {
+  color: var(--umber-faint);
+  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.editor-foot-dot { color: var(--umber-faint); }
+
+/* Processing panel -------------------------------------------------------- */
+
+.editor-processing {
+  padding: var(--space-7) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.editor-processing-ornament {
+  font-family: var(--serif);
+  font-size: 36px;
+  color: var(--ochre);
+  margin-bottom: var(--space-2);
+  animation: kicker-pulse 1800ms ease-in-out infinite;
+}
+
+.editor-processing.is-failed .editor-processing-ornament {
+  color: var(--brick);
+  animation: none;
+}
+
+.editor-processing-kicker {
+  color: var(--ochre);
+  font-family: var(--fell-sc);
+  letter-spacing: 0.18em;
+  font-size: 12px;
+}
+.editor-processing.is-failed .editor-processing-kicker {
+  color: var(--brick);
+}
+
+.editor-processing-headline {
+  font-style: italic;
+  margin: var(--space-2) 0 var(--space-3);
+  max-width: 480px;
+}
+
+.editor-processing-line {
+  color: var(--umber-soft);
+  font-size: 15px;
+}
+
+/* The typeset prose ------------------------------------------------------- */
+
+.editor-page-area {
+  position: relative;
+}
+
+.editor-content {
+  font-family: var(--fell);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--umber);
+  outline: 0;
+  caret-color: var(--ochre);
+  font-feature-settings: 'liga' 1, 'kern' 1, 'onum' 1;
+}
+
+.editor-content > * + * {
+  margin-top: 1.0em;
+}
+
+.editor-content p {
+  margin: 0;
+  text-indent: 0;
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* Justify only when the line can break sensibly — turn it off on small screens
+   where left-rag reads better. */
+@media (max-width: 480px) {
+  .editor-content p {
+    text-align: left;
+    hyphens: auto;
+  }
+}
+
+/* Drop cap on the first paragraph after a chapter heading.
+   Cormorant set big and dark. */
+.editor-content h1 + p::first-letter,
+.editor-content h2 + p::first-letter {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 4.4em;
+  line-height: 0.85;
+  float: left;
+  padding-right: 10px;
+  padding-top: 8px;
+  margin-bottom: -0.1em;
+  color: var(--umber);
+}
+
+.editor-content h1 + p,
+.editor-content h2 + p {
+  margin-top: 1.1em;
+}
+
+.editor-content h1,
+.editor-content h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.005em;
+  text-align: center;
+  margin: 3.2em 0 1.0em;
+  font-feature-settings: 'onum' 1;
+  color: var(--umber);
+  position: relative;
+}
+
+.editor-content h1 {
+  font-size: 32px;
+  line-height: 1.15;
+  margin-top: 3.6em;
+}
+
+.editor-content h2 {
+  font-size: 22px;
+  line-height: 1.2;
+  font-style: normal;
+  font-family: var(--fell-sc);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 2.6em;
+  margin-bottom: 1.4em;
+  scroll-margin-top: 80px;
+}
+.editor-content h2::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--umber);
+  margin: 14px auto 0;
+}
+
+.editor-content h3 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-style: italic;
+  font-size: 20px;
+  margin: 2.0em 0 0.6em;
+  text-align: center;
+  color: var(--umber);
+  scroll-margin-top: 80px;
+}
+
+.editor-content blockquote {
+  margin: 1.4em 0;
+  padding: 0 var(--space-4);
+  font-style: italic;
+  color: var(--umber-soft);
+  border-left: 1px solid var(--umber-faint);
+}
+
+/* The very first blockquote in the document is the dedication
+   extracted by the import pipeline from a Gutenberg illustration
+   plate. Render it as a centred italic dedication — no left rule,
+   wider top/bottom margins, narrower measure so the inscription
+   sits clearly on the page. Subsequent blockquotes (anything past
+   the first heading) keep the regular left-rule treatment. */
+.editor-content > blockquote:first-child {
+  margin: 2.4em auto 3em;
+  padding: 0;
+  border-left: 0;
+  text-align: center;
+  font-style: italic;
+  color: var(--umber-soft);
+  font-size: 17px;
+  line-height: 1.5;
+  max-width: 480px;
+  font-feature-settings: 'onum' 1;
+}
+
+.editor-content > blockquote:first-child::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--umber-faint);
+  margin: var(--space-4) auto 0;
+}
+
+.editor-content ul,
+.editor-content ol {
+  padding-left: 1.4em;
+  margin: 1em 0;
+}
+.editor-content ul li,
+.editor-content ol li {
+  margin: 0.25em 0;
+}
+
+.editor-content code {
+  font-family: 'IM Fell English', monospace;
+  background: color-mix(in oklch, var(--linen) 88%, var(--umber));
+  padding: 1px 4px;
+}
+
+.editor-content pre {
+  font-family: 'IM Fell English', monospace;
+  background: color-mix(in oklch, var(--linen) 88%, var(--umber));
+  padding: var(--space-3) var(--space-4);
+  margin: 1.2em 0;
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+
+.editor-content a,
+.editor-link {
+  color: var(--prussian);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.editor-content em { font-style: italic; }
+.editor-content strong { font-weight: 600; color: var(--umber); }
+
+/* Chapter ornament — horizontal rules emitted by the import pipeline are
+   styled as three small centred dots. They sit between a chapter ending
+   and the next chapter heading, giving the eye a beat to rest before the
+   next division begins. */
+.editor-content hr {
+  border: 0;
+  background: transparent;
+  height: auto;
+  margin: 3.4em auto 0.6em;
+  text-align: center;
+  position: relative;
+  display: block;
+  overflow: visible;
+}
+
+.editor-content hr::before {
+  content: '· · ·';
+  display: block;
+  font-family: var(--serif);
+  font-size: 26px;
+  letter-spacing: 0.6em;
+  color: var(--umber-soft);
+  text-align: center;
+  line-height: 1;
+}
+
+/* Tighten the gap when a chapter heading immediately follows the
+   ornament — the heading's own top margin would otherwise stack and feel
+   too airy. */
+.editor-content hr + h2 {
+  margin-top: 1.6em;
+}
+
+/* Editorial Contents block — the TOC rendered by the import pipeline is
+   a `## Contents` heading followed by an unordered list of links. Style
+   that list as a clean tabular contents page rather than a generic
+   bulleted list. */
+.editor-content h2:has(+ ul),
+.editor-content h2:has(+ ul) + ul {
+  /* Selectors above are inert without :has support — used only for hint
+     to future readers. The styling below targets the structure
+     unconditionally via a generic class added at parse time, OR lives
+     in standard .editor-content ul rules. */
+}
+
+.editor-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 1.4em auto;
+  max-width: 520px;
+  text-align: center;
+}
+
+.editor-content ul li {
+  margin: 0.35em 0;
+  text-align: center;
+  font-family: var(--fell);
+  font-size: 16px;
+  color: var(--umber);
+  line-height: 1.45;
+  list-style: none;
+}
+
+.editor-content ul li a {
+  color: var(--umber);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 120ms ease, color 120ms ease;
+  padding: 1px 0;
+  display: inline;
+  cursor: pointer;
+}
+.editor-content ul li a:hover {
+  color: var(--brick);
+  border-bottom-color: var(--brick);
+}
+
+/* Override Tiptap's default text cursor on hyperlinks within the prose so
+   the in-document anchors feel clickable. */
+.editor-content a[href] {
+  cursor: pointer;
+}
+
+/* Placeholder. */
+.editor-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  font-style: italic;
+  color: var(--umber-faint);
+  pointer-events: none;
+  height: 0;
+  float: left;
+}
+
+.editor-content .ProseMirror-selectednode {
+  outline: 1px solid var(--ochre);
+}
+
+/* Floating toolbar -------------------------------------------------------- */
+
+.editor-bubble {
+  display: flex;
+  background: var(--umber);
+  color: var(--linen);
+  padding: 0;
+  user-select: none;
+  border: 1px solid var(--umber);
+  /* The bubble menu plugin handles positioning. */
+}
+
+.editor-bubble-btn {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: var(--linen);
+  font-family: var(--serif);
+  font-size: 17px;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.editor-bubble-btn:hover {
+  background: color-mix(in oklch, var(--umber) 75%, var(--linen));
+}
+.editor-bubble-btn.is-active {
+  background: var(--ochre);
+  color: var(--umber);
+}
+
+.editor-bubble-divider {
+  width: 1px;
+  background: color-mix(in oklch, var(--umber) 50%, var(--linen));
+  margin: 6px 0;
+}
+
+.bubble-glyph-h {
+  font-family: var(--fell-sc);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+}
+
+.bubble-glyph-q {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Withdraw broadside ------------------------------------------------------ */
+
+.broadside-overlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in oklch, var(--linen) 30%, transparent);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--space-4);
+  animation: ilya-fade-in 200ms ease;
+}
+
+.broadside {
+  background: var(--linen);
+  border: 1px solid var(--umber);
+  width: 100%;
+  max-width: 480px;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  animation: broadside-rise 280ms ease;
+}
+
+@keyframes broadside-rise {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.broadside-kicker {
+  text-align: center;
+  color: var(--umber);
+  margin: 4px 0;
+}
+
+.broadside-headline {
+  text-align: center;
+  margin: var(--space-3) 0 0;
+  color: var(--umber);
+}
+.broadside-headline em { color: var(--brick); }
+
+.broadside-citation {
+  text-align: center;
+  color: var(--umber-soft);
+  font-size: 14px;
+  margin-top: -var(--space-2);
+}
+
+.broadside-body {
+  text-align: center;
+  color: var(--umber-soft);
+  font-size: 15px;
+  line-height: 1.55;
+  margin: var(--space-3) 0;
+  max-width: 380px;
+  align-self: center;
+}
+
+.broadside-rule {
+  width: 32px;
+  height: 1px;
+  background: var(--umber-faint);
+  align-self: center;
+  margin: var(--space-3) 0;
+}
+
+.broadside-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+/* Left chrome cluster: BACK + CONTENTS labels share the leftmost grid
+   cell with a thin separator dot. Both labels remain readable on the
+   tightest mobile widths. */
+.editor-chrome-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.editor-contents-btn {
+  position: relative;
+}
+.editor-contents-btn::before {
+  content: '·';
+  color: var(--umber-faint);
+  margin-right: 14px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* The back link's text portion ("THE LIBRARY") is hidden below 600px
+   wide so the chrome stays compact on phones. The arrow alone is
+   sufficient navigation context — the user came from the library, the
+   only place an arrow on this page can lead. */
+@media (max-width: 600px) {
+  .editor-back-text { display: none; }
+  .editor-chrome-left { gap: 14px; }
+  .editor-contents-btn::before { margin-right: 14px; }
+}
+
+/* Chapter Navigation drawer ------------------------------------------ */
+
+.chapter-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in oklch, var(--umber) 28%, transparent);
+  backdrop-filter: blur(2px);
+  z-index: 200;
+  display: flex;
+  justify-content: flex-end;
+  animation: ilya-fade-in 180ms ease;
+}
+
+.chapter-drawer {
+  width: 360px;
+  max-width: 100vw;
+  height: 100dvh;
+  background: var(--linen);
+  border-left: 1px solid var(--umber);
+  display: flex;
+  flex-direction: column;
+  animation: chapter-drawer-slide 240ms ease;
+}
+
+@media (max-width: 600px) {
+  .chapter-drawer {
+    width: 100vw;
+    border-left: 0;
+  }
+}
+
+@keyframes chapter-drawer-slide {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+.chapter-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  flex-shrink: 0;
+}
+
+.chapter-drawer-close {
+  color: var(--umber-faint);
+}
+.chapter-drawer-close:hover {
+  color: var(--brick);
+}
+
+.chapter-drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-3) 0 var(--space-5);
+  -webkit-overflow-scrolling: touch;
+}
+
+.chapter-drawer-empty {
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  color: var(--umber-soft);
+}
+
+.chapter-drawer-item {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 12px var(--space-4);
+  text-align: left;
+  font-family: var(--fell);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--umber);
+  cursor: pointer;
+  display: block;
+  transition: background-color 120ms ease, color 120ms ease;
+  border-bottom: 1px solid var(--rule-faint);
+  user-select: none;
+}
+
+.chapter-drawer-item:hover {
+  background: color-mix(in oklch, var(--linen) 90%, var(--umber));
+  color: var(--brick);
+}
+
+.chapter-drawer-item:active {
+  background: color-mix(in oklch, var(--linen) 84%, var(--umber));
+}
+
+/* Depth indentation. h1/h2 sit flush; h3 indents one level; h4 indents
+   two. Keeps the outline scannable without bullets or dashes. */
+.chapter-drawer-item.depth-2 {
+  padding-left: var(--space-4);
+  font-family: var(--fell-sc);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.chapter-drawer-item.depth-3 {
+  padding-left: calc(var(--space-4) + 18px);
+  font-style: italic;
+  color: var(--umber-soft);
+  font-size: 14px;
+}
+.chapter-drawer-item.depth-4 {
+  padding-left: calc(var(--space-4) + 36px);
+  font-style: italic;
+  color: var(--umber-soft);
+  font-size: 13px;
+}
+
+/* Drawer footer — houses the relocated WITHDRAW affordance. Sits at the
+   bottom of the drawer, separated from the chapter list by a hairline
+   rule, set in italic Caption type so it reads as a quiet tertiary
+   action. */
+.chapter-drawer-foot {
+  flex-shrink: 0;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.chapter-drawer-withdraw {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: var(--space-4) 0 var(--space-2);
+  font-family: var(--fell);
+  font-size: 14px;
+  color: var(--umber-soft);
+  text-align: center;
+  cursor: pointer;
+  transition: color 120ms ease;
+  user-select: none;
+}
+.chapter-drawer-withdraw:hover {
+  color: var(--brick);
+}
+.chapter-drawer-withdraw em {
+  font-style: italic;
+}

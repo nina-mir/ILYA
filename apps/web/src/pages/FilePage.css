@@ -1,0 +1,184 @@
+/* The Filing screen. One smart input, then results below. */
+
+.file-page {
+  min-height: 100dvh;
+}
+
+.file-wrap {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 600px) {
+  .file-wrap {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+}
+
+.file-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: var(--space-4);
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.file-header-dot {
+  color: var(--umber-faint);
+}
+
+.file-headline {
+  font-style: italic;
+  margin: 0 0 var(--space-2);
+  color: var(--umber);
+}
+
+.file-sub {
+  margin: 0 0 var(--space-6);
+  color: var(--umber-soft);
+  max-width: 520px;
+}
+
+/* The input block ----------------------------------------------------- */
+
+.file-input-block {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-6);
+}
+
+.file-input {
+  font-size: 18px;
+  font-family: var(--fell);
+}
+
+.file-helper-em {
+  font-family: var(--fell-sc);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--umber);
+  font-style: normal;
+  margin: 0 4px;
+}
+
+.file-actions {
+  margin-top: var(--space-5);
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Results panel ------------------------------------------------------- */
+
+.file-search {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-6);
+}
+
+.file-search-head {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: var(--space-2);
+}
+
+.file-search-loading,
+.file-search-error,
+.file-search-empty {
+  padding: var(--space-5) 0;
+  text-align: center;
+  color: var(--umber-soft);
+  font-size: 14px;
+}
+
+.file-search-error em {
+  color: var(--brick);
+}
+
+.file-search-results {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-result {
+  background: transparent;
+  border: 0;
+  padding: var(--space-4) 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  transition: background-color 120ms ease, padding 120ms ease;
+  opacity: 0;
+  animation: row-enter 320ms ease forwards;
+}
+
+.file-result:hover {
+  background: color-mix(in oklch, var(--linen) 92%, var(--umber));
+}
+
+.file-result:disabled {
+  cursor: progress;
+  opacity: 0.5;
+}
+
+.file-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.file-result-id {
+  font-family: var(--fell-sc);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--umber);
+}
+
+.file-result-lang {
+  font-family: var(--fell-sc);
+  letter-spacing: 0.18em;
+  font-size: 10px;
+  color: var(--umber-faint);
+}
+
+.file-result-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--umber);
+  font-feature-settings: 'onum' 1, 'kern' 1;
+}
+
+.file-result-author {
+  margin-top: 4px;
+  color: var(--umber-soft);
+}
+
+.file-result-pending {
+  margin-top: 6px;
+  color: var(--ochre);
+}
+
+.file-result-rule {
+  margin-top: var(--space-4);
+}
+
+/* Foot ---------------------------------------------------------------- */
+
+.file-foot {
+  margin-top: var(--space-6);
+  display: flex;
+  justify-content: flex-start;
+}

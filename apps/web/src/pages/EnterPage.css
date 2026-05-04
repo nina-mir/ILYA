@@ -1,0 +1,224 @@
+/* The entry screen.
+
+   The masthead settles in: rules slide outward from the centre while the
+   wordmark itself fades up from below. The whole composition lives on a
+   single linen surface with no card, no overlay, no shadow. */
+
+.enter-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) 0;
+  min-height: 100dvh;
+}
+
+.enter-wrap {
+  width: 100%;
+  max-width: 460px;
+  padding: 0 var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .enter-wrap {
+    padding: 0 var(--space-4);
+  }
+}
+
+.enter-masthead {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+}
+
+.enter-masthead-rules {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+}
+
+.enter-masthead-rules::before,
+.enter-masthead-rules::after,
+.enter-masthead-rules > i {
+  content: '';
+  display: block;
+  height: 1px;
+  background: var(--umber);
+  width: 0%;
+  margin: 0 auto;
+  animation: rule-slide-out 700ms ease-out 200ms forwards;
+  transform-origin: center;
+}
+.enter-masthead-rules::before { height: 1px; }
+.enter-masthead-rules > i { height: 1px; transform: scaleY(0.5); }
+.enter-masthead-rules::after { height: 1px; }
+
+@keyframes rule-slide-out {
+  from { width: 0%; opacity: 0; }
+  to   { width: 100%; opacity: 1; }
+}
+
+.enter-wordmark {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(76px, 19vw, 112px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--umber);
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: wordmark-settle 700ms ease-out 350ms forwards;
+  margin: 0;
+}
+
+@keyframes wordmark-settle {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.enter-tagline {
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-7);
+  text-align: center;
+  opacity: 0;
+  animation: tagline-fade 600ms ease-out 900ms forwards;
+}
+@keyframes tagline-fade {
+  to { opacity: 1; }
+}
+
+.enter-form {
+  width: 100%;
+  opacity: 0;
+  animation: form-fade 600ms ease-out 1100ms forwards;
+}
+@keyframes form-fade {
+  to { opacity: 1; }
+}
+
+.enter-stage {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.enter-courier {
+  margin-bottom: var(--space-4);
+  text-align: center;
+  font-size: 14px;
+}
+.enter-courier-em {
+  font-style: italic;
+  color: var(--umber);
+}
+
+.enter-actions {
+  margin-top: var(--space-5);
+  display: flex;
+  justify-content: center;
+}
+
+.enter-actions--code {
+  margin-top: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.enter-colophon {
+  margin-top: var(--space-7);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  opacity: 0;
+  animation: tagline-fade 600ms ease-out 1300ms forwards;
+}
+.enter-colophon-rule {
+  width: 32px;
+  height: 1px;
+  background: var(--umber-faint);
+}
+.enter-colophon .t-caption {
+  text-align: center;
+  font-size: 12px;
+}
+
+/* The six verification boxes. */
+.code-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  /* Tighter gap on small screens — at 360px viewport with 5 gaps,
+     8px × 5 = 40px of gap, and we need each box to be wide enough
+     to fit a digit comfortably. clamp keeps it generous on desktop. */
+  gap: clamp(4px, 1.5vw, 10px);
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.code-box {
+  /* `min-width: 0` is essential here: <input> elements default to an
+     intrinsic minimum width (~150px from their `size=20` default)
+     which blows out grid tracks. Without this the row ends up wider
+     than the viewport and scrolls horizontally. `width: 100%` plus
+     `min-width: 0` lets each box honour its 1fr column allocation. */
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1 / 1.15;
+  text-align: center;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(24px, 7vw, 38px);
+  color: var(--umber);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--umber);
+  outline: 0;
+  padding: 0;
+  transition: border-color 120ms ease, border-width 120ms ease, color 200ms ease;
+  font-feature-settings: 'lnum' 1, 'tnum' 1;
+  caret-color: var(--ochre);
+}
+
+.code-box:focus {
+  border-bottom: 2px solid var(--ochre);
+}
+
+.code-grid.has-error .code-box {
+  border-bottom-color: var(--brick);
+  color: var(--brick);
+  animation: code-shake 380ms ease;
+}
+@keyframes code-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+.code-grid.is-verifying .code-box {
+  color: var(--umber-soft);
+}
+
+.code-grid.is-success .code-box {
+  border-bottom-color: var(--ochre);
+  border-bottom-width: 2px;
+  color: var(--umber);
+  animation: code-success-glow 400ms ease;
+}
+@keyframes code-success-glow {
+  0% { color: var(--umber); }
+  50% { color: var(--ochre); }
+  100% { color: var(--umber); }
+}

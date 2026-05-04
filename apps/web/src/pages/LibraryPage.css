@@ -1,0 +1,448 @@
+/* The Library — editorial home. Full masthead, dateline, listing. */
+
+.library-page {
+  min-height: 100dvh;
+}
+
+.library-wrap {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-5) var(--space-7);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 600px) {
+  .library-wrap {
+    padding: var(--space-4) var(--space-4) var(--space-6);
+  }
+}
+
+/* Masthead -------------------------------------------------------------- */
+
+.library-masthead {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: var(--space-7);
+  animation: ilya-fade-in 250ms ease;
+}
+
+.library-masthead-issue {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--fell-sc);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--umber);
+  padding: 2px 0;
+}
+
+.library-wordmark {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(64px, 18vw, 132px);
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 8px 0 4px;
+  color: var(--umber);
+}
+
+.library-dateline {
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  padding: 6px 0;
+}
+
+/* On mobile, the date and the italic byline stack on top of each
+   other rather than running on a single line with a middot. The
+   middot becomes a vertical break (display:none on the inline
+   character; the date and byline each become block-level) so the
+   typography doesn't crowd against the viewport edge. */
+@media (max-width: 600px) {
+  .library-dateline {
+    line-height: 1.55;
+  }
+  .library-dateline-date,
+  .library-dateline-byline {
+    display: block;
+  }
+  .library-dateline-sep {
+    display: none;
+  }
+  .library-dateline-byline {
+    margin-top: 4px;
+  }
+}
+
+/* Listing -------------------------------------------------------------- */
+
+.library-listing {
+  display: flex;
+  flex-direction: column;
+}
+
+.library-listing-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-3);
+}
+
+.library-loading {
+  margin-top: var(--space-5);
+  text-align: center;
+  color: var(--umber-soft);
+}
+
+.library-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+/* One row -------------------------------------------------------------- */
+
+.library-row {
+  padding: var(--space-4) 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background-color 120ms ease, padding 120ms ease;
+  opacity: 0;
+  animation: row-enter 320ms ease forwards;
+}
+
+@keyframes row-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.library-row:hover {
+  background: color-mix(in oklch, var(--linen) 92%, var(--umber));
+}
+
+.library-row.is-pending,
+.library-row.is-failed {
+  cursor: default;
+}
+.library-row.is-pending:hover,
+.library-row.is-failed:hover {
+  background: transparent;
+}
+
+.library-row-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.library-kicker-process::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--ochre);
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: kicker-pulse 1400ms ease-in-out infinite;
+}
+
+@keyframes kicker-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.library-row-title {
+  font-feature-settings: 'onum' 1, 'kern' 1;
+  margin: 0;
+  color: var(--umber);
+}
+
+.library-row.is-failed .library-row-title {
+  color: color-mix(in oklch, var(--umber) 65%, var(--linen));
+}
+
+.library-row-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.library-row-dot {
+  color: var(--umber-faint);
+}
+
+.library-row-author {
+  font-style: italic;
+}
+
+.library-row-time {
+  color: var(--umber-soft);
+}
+
+.library-byline-failure {
+  color: var(--brick);
+}
+
+.library-row-rule {
+  margin-top: var(--space-4);
+}
+
+/* Per-row WITHDRAW. Sits at the row's right edge. On desktop it's
+   hidden by default and revealed when the row is hovered, so a row
+   at rest reads cleanly with just title + byline. On mobile the
+   row never enters a hover state, so we keep it visible-but-dimmed
+   in the kicker line as tertiary metadata. The button is positioned
+   absolutely against the row so it doesn't disturb the row's grid
+   flow when it appears. */
+.library-row {
+  position: relative;
+}
+
+.library-row-withdraw {
+  position: absolute;
+  top: var(--space-4);
+  right: 0;
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+  font-family: var(--fell-sc);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--umber-faint);
+  cursor: pointer;
+  user-select: none;
+  transition: color 120ms ease, opacity 120ms ease;
+  z-index: 1;
+  /* Hidden on desktop until row hover. Mobile override below. */
+  opacity: 0;
+}
+
+.library-row:hover .library-row-withdraw,
+.library-row-withdraw:focus-visible {
+  opacity: 1;
+}
+
+.library-row-withdraw:hover {
+  color: var(--brick);
+}
+
+/* Don't show the per-row withdraw on rows that aren't fully ready —
+   in-flight imports and failed editions shouldn't tempt the reader
+   into removing them while the pipeline is still working, and
+   pre-empts confusing race conditions. */
+.library-row.is-pending .library-row-withdraw,
+.library-row.is-failed .library-row-withdraw {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  /* Mobile: visible but dimmed at all times. Position adjusted so
+     it sits in the kicker line rather than overlapping with the
+     title. */
+  .library-row-withdraw {
+    opacity: 0.75;
+    top: var(--space-4);
+    font-size: 9px;
+  }
+}
+
+/* Empty shelf -------------------------------------------------------- */
+
+.library-empty {
+  padding: var(--space-7) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.library-empty-ornament {
+  font-family: var(--serif);
+  font-size: 36px;
+  color: var(--umber-faint);
+  margin-bottom: var(--space-2);
+}
+
+.library-empty-headline {
+  font-style: italic;
+}
+
+.library-empty-body {
+  color: var(--umber-soft);
+  max-width: 340px;
+}
+
+/* Centred short rule between the headline/body pair and the three-line
+   invitation. Reads as a quiet typographic break, not as a section
+   divider — it's narrower than the body content above and below. */
+.library-empty-rule {
+  width: 32px;
+  height: 1px;
+  background: var(--umber-faint);
+  margin: var(--space-4) auto var(--space-3);
+}
+
+/* The three-line invitation that teaches the smart input's modes.
+   No bullets — list-style is removed, items are centred and stacked
+   with a small gap. Italic IM Fell, smaller than the body. */
+.library-empty-modes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  text-align: center;
+}
+
+.library-empty-modes li {
+  font-family: var(--fell);
+  /* Bumped from 14px so this guidance is comfortably readable
+     without being mistaken for a heading. Sits between the body
+     copy (17px) and the caption sizes (12-13px). */
+  font-size: 16px;
+  color: var(--umber-soft);
+  line-height: 1.6;
+}
+
+.library-empty-cta {
+  margin-top: var(--space-5);
+}
+
+/* Colophon ------------------------------------------------------------ */
+
+.library-colophon {
+  margin-top: auto;
+  padding-top: var(--space-7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.library-colophon-rule {
+  width: 32px;
+  height: 1px;
+  background: var(--umber-faint);
+  margin-bottom: var(--space-2);
+}
+
+.library-colophon-line {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--umber-faint);
+  max-width: 420px;
+}
+
+/* Footer actions row: COLOPHON sits next to SIGN OUT, separated by a
+   middot. Both quiet, both small-caps, neither competing with the
+   typesetting credits above. */
+.library-colophon-actions {
+  margin-top: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.library-colophon-link,
+.library-signout {
+  color: var(--umber-faint);
+  /* Bumped from 10px to match the pinned COLOPHON on the entry page
+     — smallcaps below 11px in a serif face is hard to read. */
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+.library-colophon-link:hover,
+.library-signout:hover {
+  color: var(--brick);
+}
+
+.library-signout::before {
+  content: '·';
+  color: var(--umber-faint);
+  margin-right: 14px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* The COLOPHON broadside — reuses the WithdrawBroadside's overlay
+   styling but with content tuned for "about the maker" rather than
+   "destructive confirmation". Headline is italic Cormorant set
+   centred; the three links sit in a small list with each label on
+   its own line. */
+.colophon-broadside {
+  max-width: 460px;
+  text-align: center;
+}
+
+.colophon-headline {
+  text-align: center;
+  margin: var(--space-3) 0 0;
+  color: var(--umber);
+  font-size: clamp(36px, 7vw, 48px);
+}
+
+.colophon-body {
+  text-align: center;
+  color: var(--umber-soft);
+  font-size: 15px;
+  line-height: 1.55;
+  margin: var(--space-3) auto var(--space-2);
+  max-width: 360px;
+}
+
+.colophon-rule {
+  width: 32px;
+  height: 1px;
+  background: var(--umber-faint);
+  margin: var(--space-4) auto;
+}
+
+.colophon-links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.colophon-links li {
+  font-family: var(--fell);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--umber);
+  text-align: center;
+}
+
+.colophon-links a {
+  color: var(--umber);
+  border-bottom: 1px solid var(--umber-faint);
+  padding-bottom: 1px;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+.colophon-links a:hover {
+  color: var(--brick);
+  border-bottom-color: var(--brick);
+}
+
+.colophon-link-label {
+  display: block;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--umber-faint);
+  margin-top: 2px;
+}

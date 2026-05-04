@@ -1,0 +1,24 @@
+/* Tiptap / ProseMirror baseline: tame the default styles so our editor
+   typography rules are the only ones in play. */
+
+.ProseMirror {
+  outline: 0;
+}
+
+.ProseMirror :where(p) {
+  margin: 0;
+}
+
+.ProseMirror-focused {
+  outline: 0;
+}
+
+/* Hide the gap-cursor's default outline. */
+.ProseMirror-gapcursor {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+}
+.ProseMirror-gapcursor::after {
+  border-top-color: var(--umber);
+}
