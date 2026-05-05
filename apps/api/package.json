@@ -7,15 +7,25 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "db:generate": "drizzle-kit generate --config ../../drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config ../../drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config ../../drizzle.config.ts",
+    "db:check": "tsx src/scripts/check-db.ts",
+    "db:seed": "tsx src/scripts/seed-dev.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.0",
-    "hono": "^4.6.0"
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.6.0",
+    "postgres": "^3.4.9",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "tsx": "^4.19.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.0"
   }
 }

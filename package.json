@@ -13,7 +13,15 @@
     "dev:api": "npm run dev -w apps/api",
     "build": "npm run build -w apps/web && npm run build -w apps/api",
     "typecheck": "npm run typecheck -w apps/web && npm run typecheck -w apps/api && npm run typecheck -w packages/shared",
-    "lint:notes": "echo \"No lint configured yet. Add ESLint later if desired.\""
+    "lint:notes": "echo \"No lint configured yet. Add ESLint later if desired.\"",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
+    "db:generate": "npm run db:generate -w apps/api",
+    "db:migrate": "npm run db:migrate -w apps/api",
+    "db:studio": "npm run db:studio -w apps/api",
+    "db:check": "npm run db:check -w apps/api",
+    "db:seed": "npm run db:seed -w apps/api"
   },
   "engines": {
     "node": ">=20.19.0"
