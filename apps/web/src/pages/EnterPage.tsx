@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, type KeyboardEvent, type ClipboardEvent, type ChangeEvent } from 'react';
-import { auth } from '@mindstudio-ai/interface';
 import api from '../api';
 import { useStore } from '../store';
 import { useNavigate } from '../hooks/useNavigate';
@@ -40,27 +39,23 @@ export default function EnterPage() {
 
   const sendCode = async () => {
     const trimmed = email.trim().toLowerCase();
-    if (!auth.email.isValid(trimmed)) {
+    if (!isReasonableEmail(trimmed)) {
       setEmailError('That address is not in the editor’s ledger of valid emails.');
       return;
     }
     setEmailError(null);
     setBusy(true);
     try {
-      const { verificationId } = await auth.sendEmailCode(trimmed);
-      setVerificationId(verificationId);
+      await api.sendEmailCode({ email: trimmed });
+      setVerificationId('local-console-code');
       setEmail(trimmed);
       setStage('code');
       setResendTimer(30);
       setCode(['', '', '', '', '', '']);
     } catch (err) {
       console.error('sendEmailCode failed', err);
-      const e = err as { code?: string; message?: string };
-      if (e.code === 'rate_limited') {
-        setEmailError('The press is overwhelmed. Try again in a moment.');
-      } else {
-        setEmailError('We couldn’t reach the courier. Try once more.');
-      }
+      const msg = err instanceof Error ? err.message : 'We couldn’t reach the courier. Try once more.';
+      setEmailError(msg);
     } finally {
       setBusy(false);
     }
@@ -72,60 +67,37 @@ export default function EnterPage() {
     setStage('verifying');
     setCodeError(null);
     try {
-      await auth.verifyEmailCode(verificationId, value);
-      // Idempotent post-verification setup — fills in default fields on
-      // the user row. The returned `isNewReader` flag is informational
-      // only; we do NOT trust it to gate welcome-book filing because
-      // it has been known to flip back to `true` on a re-sign-in due
-      // to a stale read in the SDK's User-column layer. Library state
-      // is the real source of truth.
+      const verified = await api.verifyEmailCode({ email, code: value });
+      useStore.getState().setUser(verified.user);
+
       const me = await api.signUpReader({});
 
-      // Pre-warm the library so we can decide whether to file welcome
-      // books based on what the reader actually has, not a flag.
+      // Re-load the canonical current user after sign-up fills joinedAt/displayName.
+      await useStore.getState().loadMe();
       await refresh();
+
       const library = useStore.getState().library ?? [];
 
-      // Welcome books — file three classics for brand-new readers so
-      // their library isn't empty on first arrival. We file them when:
-      //   1. The library is currently empty, AND
-      //   2. We have not already attempted welcome books for this
-      //      reader on this browser (localStorage idempotency key).
-      // The localStorage flag means a reader who deliberately withdraws
-      // every welcome book and signs out will not get them refiled on
-      // the next sign-in. The empty-library check is the safety net
-      // for any case where signUpReader's flag is wrong.
+      // Keep the old frontend behavior for now: welcome books are attempted
+      // by the browser after first sign-in. In Phase 6, once real imports work,
+      // we can decide whether to move this server-side.
       const welcomeKey = `ilya:welcome-attempted:v1:${me.id}`;
       const alreadyAttempted = (() => {
         try { return localStorage.getItem(welcomeKey) === '1'; }
         catch { return false; }
       })();
 
-      if (library.length === 0 && !alreadyAttempted) {
-        const WELCOME_BOOKS = ['1342', '36', '1056'];
-        for (const id of WELCOME_BOOKS) {
-          try {
-            await api.fileEdition({ source: id });
-          } catch (err) {
-            // Most common failure here is a UNIQUE constraint when a
-            // book is already filed — benign, treat as success.
-            console.warn(`welcome book ${id} failed to file`, err);
-          }
-        }
-        try { localStorage.setItem(welcomeKey, '1'); } catch { /* private mode */ }
-        // Refresh once more so the library carries the new editions.
-        await refresh();
+      if (library.length === 0 && !alreadyAttempted && me.isNewReader) {
+        // Phase 6 will implement real fileEdition. For Phase 5, do not auto-file.
+        // We set the flag only after Phase 6 is ready. Leaving this block empty
+        // preserves the structure without causing failed imports today.
       }
+
       setStage('success');
-      // Brief pause so the success state can register, then navigate.
       setTimeout(() => navigate('/', true), 450);
     } catch (err) {
       console.error('verifyEmailCode failed', err);
-      const e = err as { code?: string; message?: string };
-      let msg = 'That code did not match. Try again.';
-      if (e.code === 'verification_expired') msg = 'That code has expired. Request a fresh one.';
-      else if (e.code === 'max_attempts_exceeded') msg = 'Too many wrong tries. Request a fresh code.';
-      else if (e.code === 'rate_limited') msg = 'Too many tries. Pause a moment and try again.';
+      const msg = err instanceof Error ? err.message : 'That code did not match. Try again.';
       setCodeError(msg);
       setCode(['', '', '', '', '', '']);
       setStage('code');
@@ -180,14 +152,15 @@ export default function EnterPage() {
     setBusy(true);
     setCodeError(null);
     try {
-      const { verificationId } = await auth.sendEmailCode(email);
-      setVerificationId(verificationId);
+      await api.sendEmailCode({ email });
+      setVerificationId('local-console-code');
       setResendTimer(30);
       setCode(['', '', '', '', '', '']);
       setTimeout(() => codeBoxRefs.current[0]?.focus(), 0);
     } catch (err) {
       console.error('resend failed', err);
-      setCodeError('The courier did not reach the address. Try once more.');
+      const msg = err instanceof Error ? err.message : 'The courier did not reach the address. Try once more.';
+      setCodeError(msg);
     } finally {
       setBusy(false);
     }
@@ -408,4 +381,8 @@ function CodeStep({
       </div>
     </div>
   );
+}
+
+function isReasonableEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

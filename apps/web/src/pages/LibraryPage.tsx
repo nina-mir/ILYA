@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { auth } from '@mindstudio-ai/interface';
 import { useStore } from '../store';
 import { useNavigate } from '../hooks/useNavigate';
 import api, { type LibraryEntry } from '../api';
@@ -136,7 +135,9 @@ export default function LibraryPage() {
         </div>
 
         <Colophon onSignOut={async () => {
-          await auth.logout();
+          await api.logout();
+          useStore.getState().setUser(null);
+          useStore.getState().clearLibrary();
           navigate('/enter', true);
         }} />
       </div>
@@ -254,11 +255,11 @@ function LibraryRow({
       onKeyDown={
         isReady
           ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onOpen();
-              }
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onOpen();
             }
+          }
           : undefined
       }
       style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
