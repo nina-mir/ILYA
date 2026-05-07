@@ -1,8 +1,15 @@
 import { Hono } from 'hono';
+import type { PublicUser } from '../types';
 
-export const meRoutes = new Hono();
+type AppEnv = {
+  Variables: {
+    user: PublicUser | null;
+  };
+};
 
-meRoutes.get('/', async (c) => {
+export const meRoutes = new Hono<AppEnv>();
+
+meRoutes.get('/me', (c) => {
   const user = c.get('user');
   return c.json({ user });
 });

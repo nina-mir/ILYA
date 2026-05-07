@@ -142,6 +142,7 @@ export async function verifyLoginCode(input: {
     .where(eq(emailLoginCodes.id, loginCode.id));
 
   const now = new Date();
+
   const [existingUser] = await db
     .select()
     .from(users)
@@ -158,8 +159,18 @@ export async function verifyLoginCode(input: {
       .values({
         email,
         roles: ['reader'],
-        displayName: deriveDefaultName(email),
-        joinedAt: now,
+
+        // Important:
+        // Verification only proves the email and creates a session.
+        // It should NOT mark the reader as onboarded.
+        //
+        // /api/sign-up-reader is responsible for filling these in and
+        // returning isNewReader: true the first time it does so.
+        displayName: null,
+        joinedAt: null,
+
+        createdAt: now,
+        updatedAt: now,
       })
       .returning();
 
@@ -185,7 +196,9 @@ export async function verifyLoginCode(input: {
   };
 }
 
-export async function getUserBySessionToken(token: string | undefined): Promise<PublicUser | null> {
+export async function getUserBySessionToken(
+  token: string | undefined,
+): Promise<PublicUser | null> {
   if (!token) return null;
 
   const tokenHash = hashSecret(token);
@@ -210,9 +223,4 @@ export async function logoutSession(token: string | undefined): Promise<void> {
   const tokenHash = hashSecret(token);
 
   await db.delete(sessions).where(eq(sessions.tokenHash, tokenHash));
-}
-
-function deriveDefaultName(email: string): string {
-  const domain = email.split('@')[1] ?? 'post.org';
-  return `the reader at ${domain}`;
 }

@@ -1,12 +1,25 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { HTTPException } from 'hono/http-exception';
 import { env } from './env';
 import { attachUser } from './auth/middleware';
 import { authRoutes } from './routes/auth';
 import { meRoutes } from './routes/me';
+import { readersRoute } from './routes/readers';
+import { editionsRoute } from './routes/editions';
 
-const app = new Hono();
+//import type { PublicUser } from './types';
+
+import type { PublicUser } from './auth/service';
+
+type AppEnv = {
+  Variables: {
+    user: PublicUser | null;
+  };
+};
+
+const app = new Hono<AppEnv>();
 
 app.use(
   '*',
@@ -25,11 +38,17 @@ app.get('/health', (c) => {
 });
 
 app.route('/api/auth', authRoutes);
-app.route('/api/me', meRoutes);
+app.route('/api', meRoutes);
+app.route('/api', readersRoute);
+app.route('/api', editionsRoute);
+
 
 app.notFound((c) => c.json({ error: 'Not found' }, 404));
 
 app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    return c.json({ error: err.message }, err.status);
+  }
   console.error(err);
   return c.json({ error: 'The press has stopped.' }, 500);
 });

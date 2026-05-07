@@ -1,3 +1,5 @@
+export * from './types';
+
 export type UserBookStatus =
   | 'pending'
   | 'fetching_metadata'
