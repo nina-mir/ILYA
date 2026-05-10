@@ -15,8 +15,8 @@ export interface LibraryEntry {
   author: string;
   status: string;
   statusMessage: string | null;
-  lastEditedAt: string | null;
-  createdAt: string;
+  lastEditedAt: number | null;
+  createdAt: number;
 }
 
 export interface BookSearchResult {
@@ -34,9 +34,9 @@ export interface Edition {
   markdownContent: string;
   status: string;
   statusMessage: string | null;
-  lastEditedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  lastEditedAt: number | null;
+  createdAt: number;
+  updatedAt: number;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
@@ -118,22 +118,54 @@ const api = {
   },
 
   // Library / editions
-  listMyLibrary(): Promise<{ entries: LibraryEntry[] }> {
-    return request('/api/library');
+  async listMyLibrary(): Promise<{ entries: LibraryEntry[] }> {
+    const data = await request<{
+      entries: Array<Omit<LibraryEntry, 'lastEditedAt' | 'createdAt'> & {
+        lastEditedAt: string | number | null;
+        createdAt: string | number;
+      }>
+    }>('/api/library');
+
+    return {
+      entries: data.entries.map((entry) => ({
+        ...entry,
+        lastEditedAt: toMs(entry.lastEditedAt),
+        createdAt: toMs(entry.createdAt) ?? Date.now(),
+      })),
+    };
   },
 
-  getMyEdition(input: { id: string }): Promise<Edition> {
-    return request(`/api/editions/${encodeURIComponent(input.id)}`);
+  async getMyEdition(input: { id: string }): Promise<Edition> {
+    const data = await request<Omit<Edition, 'lastEditedAt' | 'createdAt' | 'updatedAt'> & {
+      lastEditedAt: string | number | null;
+      createdAt: string | number;
+      updatedAt: string | number;
+    }>(`/api/editions/${encodeURIComponent(input.id)}`);
+
+    return {
+      ...data,
+      lastEditedAt: toMs(data.lastEditedAt),
+      createdAt: toMs(data.createdAt) ?? Date.now(),
+      updatedAt: toMs(data.updatedAt) ?? Date.now(),
+    };
   },
 
-  setMyEdition(input: { id: string; markdownContent: string }): Promise<{
+  async setMyEdition(input: { id: string; markdownContent: string }): Promise<{
     id: string;
-    lastEditedAt: string;
+    lastEditedAt: number;
   }> {
-    return request(`/api/editions/${encodeURIComponent(input.id)}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ markdownContent: input.markdownContent }),
-    });
+    const data = await request<{ id: string; lastEditedAt: string | number }>(
+      `/api/editions/${encodeURIComponent(input.id)}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ markdownContent: input.markdownContent }),
+      },
+    );
+
+    return {
+      id: data.id,
+      lastEditedAt: toMs(data.lastEditedAt) ?? Date.now(),
+    };
   },
 
   withdrawMyEdition(input: { id: string }): Promise<{ deleted: boolean }> {
@@ -163,5 +195,12 @@ const api = {
     });
   },
 };
+
+function toMs(value: string | number | null | undefined): number | null {
+  if (value == null) return null;
+  if (typeof value === 'number') return value;
+  const ms = Date.parse(value);
+  return Number.isNaN(ms) ? null : ms;
+}
 
 export default api;

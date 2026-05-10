@@ -103,6 +103,16 @@ export default function LibraryPage() {
             <button
               type="button"
               className="linklabel"
+              onClick={async () => {
+                await api.devSeedEdition();
+                await refresh();
+              }}
+            >
+              ＋ SEED DEV EDITION
+            </button>
+            <button
+              type="button"
+              className="linklabel"
               onClick={() => navigate('/file')}
             >
               ＋ FILE A NEW EDITION
