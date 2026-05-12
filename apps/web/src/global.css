@@ -29,6 +29,39 @@
   --fell-sc: 'IM Fell English SC', 'IM Fell English', 'Garamond', serif;
 }
 
+@media (min-width: 900px) {
+  :root {
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 36px;
+    --space-7: 54px;
+    --space-8: 88px;
+  }
+
+  html,
+  body,
+  #root {
+    font-size: 15px;
+  }
+
+  .library-wordmark {
+    font-size: clamp(52px, 12vw, 96px);
+  }
+
+  .enter-wordmark {
+    font-size: clamp(64px, 14vw, 92px);
+  }
+
+  .editor-title {
+    font-size: clamp(32px, 5vw, 46px);
+  }
+
+  .editor-content {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+}
+
 /* No rounded corners or shadows anywhere we control. */
 *,
 *::before,
@@ -45,7 +78,7 @@ html, body, #root {
   background: var(--linen);
   color: var(--umber);
   font-family: var(--fell);
-  font-size: 17px;
+  font-size: 14px;
   line-height: 1.55;
   font-feature-settings: 'liga' 1, 'kern' 1;
   -webkit-font-smoothing: antialiased;

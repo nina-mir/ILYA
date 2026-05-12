@@ -173,6 +173,19 @@ const api = {
       method: 'DELETE',
     });
   },
+  // Phase-5 temporary band-aid
+  // If TypeScript complains because api.fileEdition is missing, add a temporary placeholder to api.ts
+  fileEdition(input: { source: string }): Promise<{
+    id: string;
+    gutenbergId: string;
+    status: string;
+  }> {
+    return request('/api/file-edition', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+  },
+
 
   // Phase 6 placeholder. This route may return 501/404 until Phase 6.
   searchBooks(input: { query: string }): Promise<{ results: BookSearchResult[] }> {
@@ -202,5 +215,8 @@ function toMs(value: string | number | null | undefined): number | null {
   const ms = Date.parse(value);
   return Number.isNaN(ms) ? null : ms;
 }
+
+
+
 
 export default api;
