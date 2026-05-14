@@ -1,3 +1,6 @@
+export * from './gutenberg/gutenbergId';
+export * from './gutenberg/gutendex';
+export * from './gutenberg/processGutenbergText';
 export * from './types';
 
 export type UserBookStatus =
