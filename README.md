@@ -15,6 +15,37 @@ The application runs on an independent **React + Hono + PostgreSQL** stack. Its 
 - **Reading experience:** Editorial typography, chapter navigation, and saved reading position.
 - **Withdrawals:** Remove an edition—including during an import—without deleting another reader's copy or the shared cache.
 
+## Built at Kane CLI Hack Day (Oct 24, 2026)
+
+Ilya was migrated by hand from a proprietary AI-agent platform to this stack before the event. Everything up to the [`before-hackathon`](https://github.com/nina-mir/ILYA/tree/before-hackathon) tag existed at 10 AM; everything after it was built on the day, using Codex as the coding agent and [Kane CLI](https://www.testmuai.com/docs/kane-cli-introduction) to verify the app in a real browser.
+
+**What Kane caught, and how it was fixed** (each bug failed in Kane first, was fixed, and then passed on a new commit):
+
+| Bug | Red run | Green run |
+|---|---|---|
+| Gutenberg `/dirs/` mirror links were rejected by the server and misread as book 1 in the browser | KR-107 | KR-119 |
+| The library showed a placeholder title for the whole import instead of the book's title | KR-135 | KR-143 |
+| Searching "Jack London" didn't show *The Call of the Wild* (results sorted by title, cut at 24) | KR-229 | KR-239 |
+
+**New on the day**
+- **Reading settings:** an **Aa** button in the editor adjusts font size, line width, and background lightness, saved per reader. Verified by Kane (KR-184, KR-189).
+- **Local catalog:** search used to call Gutendex, which kept timing out. Ilya now imports Project Gutenberg's own catalog (78,383 books) into Postgres, so search and filing work without it.
+- **Assurance loop:** `docs/requirements.md` was turned into use-cases and generated tests with Kane's `context` and `design` commands.
+
+### Test login (development only)
+With `EMAIL_MODE=console`, any email ending in `@test.local` signs in with the code `000000`. Each new address starts with an empty shelf. This shortcut exists so Kane can sign in on its own; it is disabled in production.
+
+### Running the Kane tests
+Install [Kane CLI](https://www.testmuai.com/docs/kane-cli-installation), start Ilya with `npm run dev`, then:
+
+```bash
+npm run test:kane
+```
+
+This prepares fresh test data and runs the saved flows in `.testmuai/tests/` headlessly. Each flow is plain English, and Kane also exports it as a Playwright script.
+
+**Dev-only import delay:** set `IMPORT_DEBUG_TEXT_DELAY_MS=30000` in `apps/api/.env` to pause imports for 30 seconds after metadata, which makes the mid-import test reliable. It defaults to 0 and is ignored in production.
+
 ## Stack
 
 | Layer | Technology |
@@ -114,14 +145,25 @@ Open the web URL and enter an email address. In `EMAIL_MODE=console`, the six-di
 | `npm run build` | Build web and API |
 | `npm run db:up` / `npm run db:down` | Start / stop local PostgreSQL |
 | `npm run db:migrate` | Apply existing Drizzle migrations |
+| `npm run catalog:import` | Download and upsert Gutenberg's catalog for local search |
 | `npm run db:check` | Check database connectivity and table counts |
 | `npm run db:studio` | Open Drizzle Studio |
 
 ## Design and implementation notes
 
+After migrating a new database, run `npm run catalog:import` before searching.
+Search uses the local catalog, matching words across title and author, and returns
+up to 24 results. Re-run the command to refresh metadata; it updates existing IDs
+without deleting cached text or personal editions. To import a saved CSV instead,
+use `npm run catalog:import -- /absolute/path/pg_catalog.csv`. The complete file is
+validated before a transactional update, so a failed import preserves the catalog.
+The worker also reads metadata and the text URL from this table first, falling
+back to Gutendex only for an ID absent from the catalog. Text downloads still
+come from Project Gutenberg and keep the existing validation and size limits.
+
 ILYA uses linen-and-umber, print-inspired typography rather than a conventional dashboard interface. The source processing deliberately favors repeatable, deterministic cleanup over generative rewriting. A shared cached edition and a reader's editable copy are stored separately, so personal changes do not alter the common source text.
 
-**Current scope:** Local-first MVP. Public deployment, a more robust import-cancellation workflow, and improvements to Gutenberg table-of-contents recognition remain future work. Availability of catalogue search and downloads depends on external Gutenberg services and network connectivity.
+**Current scope:** Local-first MVP. Public deployment, a more robust import-cancellation workflow, and improvements to Gutenberg table-of-contents recognition remain future work. Catalog refreshes and book downloads require external Gutenberg services; searching an imported catalog works locally.
 
 ## Development workflow
 

@@ -11,6 +11,8 @@ import { WithdrawBroadside } from '../components/WithdrawBroadside';
 import { useNavigate } from '../hooks/useNavigate';
 import { useStore } from '../store';
 import { formatClock, relativeTime } from '../util/time';
+import { ReadingSettings } from '../components/ReadingSettings';
+import { useReadingSettings } from '../hooks/useReadingSettings';
 import './EditorPage.css';
 
 const AUTOSAVE_DEBOUNCE_MS = 2000;
@@ -48,6 +50,8 @@ interface HeadingEntry {
 export default function EditorPage({ id }: EditorPageProps) {
   const navigate = useNavigate();
   const refreshLibrary = useStore((s) => s.refreshLibrary);
+  const readerId = useStore((s) => s.user?.id);
+  const readingSettings = useReadingSettings(readerId);
 
   // Use SWR for the initial fetch and as the cache key for the polling
   // refresh. While the edition isn't `ready`, we revalidate every 1.5s; once
@@ -505,7 +509,7 @@ export default function EditorPage({ id }: EditorPageProps) {
   // ---------- Render branches ----------
   if (error) {
     return (
-      <div className="page editor-page">
+      <div className="page editor-page" style={readingSettings.style}>
         <div className="editor-error t-byline">
           <em>That edition was not found in your library.</em>
           <button
@@ -522,9 +526,10 @@ export default function EditorPage({ id }: EditorPageProps) {
   }
 
   return (
-    <div className="page editor-page">
+    <div className="page editor-page" style={readingSettings.style}>
       <EditorChrome
         edition={edition}
+        readingSettings={readingSettings}
         saveState={saveState}
         hasContents={headings.length > 0}
         onBack={() => navigate('/')}
@@ -659,6 +664,7 @@ export default function EditorPage({ id }: EditorPageProps) {
 
 function EditorChrome({
   edition,
+  readingSettings,
   saveState,
   hasContents,
   onBack,
@@ -666,6 +672,7 @@ function EditorChrome({
   onWithdraw,
 }: {
   edition: Edition | undefined;
+  readingSettings: ReturnType<typeof useReadingSettings>;
   saveState: SaveState;
   hasContents: boolean;
   onBack: () => void;
@@ -704,20 +711,23 @@ function EditorChrome({
 
         <SaveIndicator state={saveState} />
 
-        {/* Withdraw lives in the desktop chrome AND in the Chapter
-            Navigation drawer footer. The chrome copy is hidden below
-            600px (where the drawer footer is the canonical place);
-            on desktop, both are reachable. The reader gets the same
-            broadside no matter which entry point they use. */}
-        <button
-          type="button"
-          className="linklabel editor-withdraw-link"
-          onClick={onWithdraw}
-          disabled={!canWithdraw}
-          aria-label="Withdraw this edition"
-        >
-          WITHDRAW
-        </button>
+        <div className="editor-chrome-right">
+          <ReadingSettings settings={readingSettings} />
+          {/* Withdraw lives in the desktop chrome AND in the Chapter
+              Navigation drawer footer. The chrome copy is hidden below
+              600px (where the drawer footer is the canonical place);
+              on desktop, both are reachable. The reader gets the same
+              broadside no matter which entry point they use. */}
+          <button
+            type="button"
+            className="linklabel editor-withdraw-link"
+            onClick={onWithdraw}
+            disabled={!canWithdraw}
+            aria-label="Withdraw this edition"
+          >
+            WITHDRAW
+          </button>
+        </div>
       </div>
       <div className="rule-faint" />
     </div>
