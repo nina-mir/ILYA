@@ -66,6 +66,11 @@ const envSchema = z.object({
     .int()
     .positive()
     .default(3),
+
+  IMPORT_DEBUG_TEXT_DELAY_MS: z.preprocess(
+    (value) => process.env.NODE_ENV === 'production' ? 0 : value,
+    z.coerce.number().int().nonnegative().default(0),
+  ),
 });
 
 export const env = envSchema.parse(process.env);
