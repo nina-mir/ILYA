@@ -126,10 +126,13 @@ up to 24 results. Re-run the command to refresh metadata; it updates existing ID
 without deleting cached text or personal editions. To import a saved CSV instead,
 use `npm run catalog:import -- /absolute/path/pg_catalog.csv`. The complete file is
 validated before a transactional update, so a failed import preserves the catalog.
+The worker also reads metadata and the text URL from this table first, falling
+back to Gutendex only for an ID absent from the catalog. Text downloads still
+come from Project Gutenberg and keep the existing validation and size limits.
 
 ILYA uses linen-and-umber, print-inspired typography rather than a conventional dashboard interface. The source processing deliberately favors repeatable, deterministic cleanup over generative rewriting. A shared cached edition and a reader's editable copy are stored separately, so personal changes do not alter the common source text.
 
-**Current scope:** Local-first MVP. Public deployment, a more robust import-cancellation workflow, and improvements to Gutenberg table-of-contents recognition remain future work. Availability of catalogue search and downloads depends on external Gutenberg services and network connectivity.
+**Current scope:** Local-first MVP. Public deployment, a more robust import-cancellation workflow, and improvements to Gutenberg table-of-contents recognition remain future work. Catalog refreshes and book downloads require external Gutenberg services; searching an imported catalog works locally.
 
 ## Development workflow
 
