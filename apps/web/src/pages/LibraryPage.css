@@ -237,11 +237,6 @@
   color: var(--brick);
 }
 
-/* Don't show the per-row withdraw on rows that aren't fully ready —
-   in-flight imports and failed editions shouldn't tempt the reader
-   into removing them while the pipeline is still working, and
-   pre-empts confusing race conditions. */
-
 @media (max-width: 600px) {
   /* Mobile: visible but dimmed at all times. Position adjusted so
      it sits in the kicker line rather than overlapping with the
