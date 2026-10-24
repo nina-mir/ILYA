@@ -1,38 +1,39 @@
 const GUTENBERG_HOSTS = ['gutenberg.org', 'pglaf.org', 'pglaf.com'];
 
 export function resolveGutenbergId(input: string): string | null {
-  const trimmed = input.trim();
-  if (!trimmed) return null;
+  const value = input.trim();
 
-  if (/^\d{1,7}$/.test(trimmed)) {
-    return trimmed;
+  if (/^[1-9]\d{0,6}$/.test(value)) return value;
+  if (!value) return null;
+
+  try {
+    const address = /^https?:\/\//i.test(value)
+      ? value
+      : `https://${value}`;
+
+    const url = new URL(address);
+
+    if (!['http:', 'https:'].includes(url.protocol)) return null;
+    if (url.username || url.password) return null;
+
+    const host = url.hostname.toLowerCase();
+
+    const validHost = GUTENBERG_HOSTS.some(
+      (domain) => host === domain || host.endsWith(`.${domain}`)
+    );
+
+    if (!validHost) return null;
+
+    const match = url.pathname.match(
+      /^\/(?:ebooks|files|cache\/epub)\/([1-9]\d{0,6})(?=\/|\.|$)/i
+    );
+
+    return match?.[1] ?? null;
+  } catch {
+    return null;
   }
-
-  const lower = trimmed.toLowerCase();
-  const isGutenbergHost = GUTENBERG_HOSTS.some((host) => lower.includes(host));
-  if (!isGutenbergHost) return null;
-
-  const matches = trimmed.match(/\d{2,7}/g);
-  if (!matches || matches.length === 0) return null;
-
-  const counts = new Map<string, number>();
-  for (const match of matches) {
-    counts.set(match, (counts.get(match) ?? 0) + 1);
-  }
-
-  let best = matches[0];
-  let bestScore = -Infinity;
-
-  for (const [id, count] of counts) {
-    const score = count * 10 + id.length;
-    if (score > bestScore) {
-      best = id;
-      bestScore = score;
-    }
-  }
-
-  return best;
 }
+
 
 export function classifyImportInput(
   input: string,

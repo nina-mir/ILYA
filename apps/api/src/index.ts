@@ -8,6 +8,7 @@ import { authRoutes } from './routes/auth';
 import { meRoutes } from './routes/me';
 import { readersRoute } from './routes/readers';
 import { editionsRoute } from './routes/editions';
+import { booksRoute } from './routes/books';
 
 //import type { PublicUser } from './types';
 
@@ -41,7 +42,7 @@ app.route('/api/auth', authRoutes);
 app.route('/api', meRoutes);
 app.route('/api', readersRoute);
 app.route('/api', editionsRoute);
-
+app.route('/api', booksRoute);
 
 app.notFound((c) => c.json({ error: 'Not found' }, 404));
 
