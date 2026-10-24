@@ -24,6 +24,11 @@ export function resolveGutenbergId(input: string): string | null {
 
     if (!validHost) return null;
 
+    if (/^\/dirs\//i.test(url.pathname)) {
+      const id = url.pathname.split('/').filter((part) => /^\d+$/.test(part)).pop();
+      return id && /^[1-9]\d{0,6}$/.test(id) ? id : null;
+    }
+
     const match = url.pathname.match(
       /^\/(?:ebooks|files|cache\/epub)\/([1-9]\d{0,6})(?=\/|\.|$)/i
     );
