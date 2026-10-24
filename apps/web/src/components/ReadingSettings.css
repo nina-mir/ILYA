@@ -1,0 +1,102 @@
+.reading-settings {
+  position: relative;
+}
+
+.reading-settings-trigger {
+  font-family: var(--serif);
+  font-size: 24px;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+.reading-settings-trigger[aria-expanded="true"] {
+  color: var(--ochre);
+}
+
+.reading-settings-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: min(330px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid var(--rule);
+  background: var(--reading-paper, var(--linen));
+  color: var(--umber);
+  z-index: 11;
+}
+
+.reading-settings-heading {
+  padding-bottom: 12px;
+}
+
+.reading-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule-faint);
+}
+
+.reading-setting-label {
+  font-size: 14px;
+}
+
+.reading-setting-controls {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.reading-setting-controls button {
+  width: 32px;
+  height: 32px;
+  font-size: 22px;
+}
+
+.reading-setting-controls button:disabled {
+  color: var(--umber-faint);
+  cursor: default;
+}
+
+.reading-setting-value {
+  min-width: 60px;
+  text-align: center;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.reading-settings button:focus-visible {
+  outline: 1px solid var(--ochre);
+  outline-offset: 2px;
+}
+
+/* Reader preferences apply to presentation, never document content. */
+.editor-page {
+  background: var(--reading-paper, var(--linen));
+}
+
+.editor-page .editor-chrome {
+  background: var(--reading-paper, var(--linen));
+}
+
+.editor-page .editor-content {
+  font-size: var(--reading-font-size, 18px);
+}
+
+.editor-page .editor-shell {
+  max-width: var(--reading-width, 720px);
+}
+
+.editor-chrome-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .editor-chrome-row {
+    grid-template-columns: 1fr auto auto;
+  }
+}
