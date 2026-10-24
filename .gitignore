@@ -16,5 +16,6 @@ node_modules/
 dist/
 
 # Kane CLI generated files
+.context/
 .testmuai/evidence/
 .testmuai/tests/output-*/

@@ -6,7 +6,7 @@ From the repository root, with the API, web app and worker already running:
 npm run test:kane
 ```
 
-This first prepares the local test data, then runs all five saved tests in one
+This first prepares the local test data, then runs all six configured tests in one
 headless, serial Kane execution through `kanehack report`. Kane sign-in, credits
 and report consent must already be available. This command spends Kane credits.
 
@@ -42,6 +42,7 @@ app. No database reset has been executed as part of preparing these files.
 | Mid-import title | Fresh reader; uncached Dracula; live worker with text delay. Wait for the text-fetching byline before checking the title and `IN SETTING` together. Ready/failed before that phase is a failure. |
 | Settings apply | Fresh reader; cached Frankenstein; no previously saved reading preferences. |
 | Settings persist | Separate fresh reader; cached Frankenstein; set preferences, reload, and check all three labels. |
+| Jack London search | Fresh reader; imported local catalog; verify The Call of the Wild is returned for Jack London. |
 
 Each saved test uses `{{smart.random_string_8}}` in its email. Kane resolves it
 once for that test objective, including on subsequent replays. Browser profiles
@@ -49,8 +50,8 @@ are isolated by the suite runner. Old reader1–reader10 accounts and their save
 preferences do not affect these runs. Re-run preparation before each full suite;
 the mid-import test must not be run again against the cache left by a prior run.
 
-The mid-import test still depends on external Gutendex metadata and Gutenberg
-downloads. A timeout there is a dependency failure, not proof of a title regression.
+The mid-import test reads metadata from the imported local catalog and downloads
+text from Gutenberg. A download timeout is a dependency failure, not proof of a title regression.
 The apply recording previously verified the settings labels instead of independently
 asserting rendered styles; its assertions have not been broadened in this setup-only change.
 Edits to test objectives cause Kane to record those steps again on the next run.

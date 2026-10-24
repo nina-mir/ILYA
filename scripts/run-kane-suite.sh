@@ -11,6 +11,7 @@ tests=(
   .testmuai/tests/reader5-mid-import-title_test.md
   .testmuai/tests/reading-settings-apply_test.md
   .testmuai/tests/reading-settings-persistence_test.md
+  .testmuai/tests/search-jack-london_test.md
 )
 
 # Serial execution avoids CPU-heavy book layout competing across browsers.

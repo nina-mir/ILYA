@@ -1,0 +1,27 @@
+{
+  "start_url": {
+    "value": "http://localhost:5173",
+    "secret": false,
+    "description": "Browser start URL of the Ilya reader product, not supplied by the requirements."
+  },
+  "reader_a_email": {
+    "value": "ilya-assurance-a-e5528ea54aec@test.local",
+    "secret": false,
+    "description": "Test reader A email address with accessible email-code sign-in and ready editions."
+  },
+  "reader_b_email": {
+    "value": "ilya-assurance-b-e5528ea54aec@test.local",
+    "secret": false,
+    "description": "Test reader B email address with accessible email-code sign-in and a ready edition."
+  },
+  "edition_a_title": {
+    "value": "Frankenstein",
+    "secret": false,
+    "description": "Title of a ready edition reader A can open in the editor."
+  },
+  "edition_b_title": {
+    "value": "Pride and Prejudice",
+    "secret": false,
+    "description": "Title of a different ready edition reader A can open; reader B also needs access to a ready edition."
+  }
+}
