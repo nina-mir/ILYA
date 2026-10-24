@@ -24,7 +24,8 @@
     "db:check": "npm run db:check -w apps/api",
     "db:seed": "npm run db:seed -w apps/api",
     "test:kane:prepare": "tsx scripts/prepare-kane-suite.ts",
-    "test:kane": "bash scripts/run-kane-suite.sh"
+    "test:kane": "bash scripts/run-kane-suite.sh",
+    "catalog:import": "npm run catalog:import -w apps/api --"
   },
   "engines": {
     "node": ">=20.19.0"

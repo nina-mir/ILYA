@@ -12,11 +12,14 @@
     "db:migrate": "drizzle-kit migrate --config ../../drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config ../../drizzle.config.ts",
     "db:check": "tsx src/scripts/check-db.ts",
-    "db:seed": "tsx src/scripts/seed-dev.ts"
+    "db:seed": "tsx src/scripts/seed-dev.ts",
+    "catalog:import": "tsx src/scripts/import-catalog.ts",
+    "test:catalog": "tsx --test src/catalog/parseCatalog.test.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",
     "@ilya/shared": "^0.1.0",
+    "csv-parse": "^7.0.3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.17",

@@ -92,6 +92,24 @@ export const sessions = pgTable(
 // Cached Gutenberg books
 // -----------------------------------------------------------------------------
 
+export const gutenbergCatalog = pgTable(
+  'gutenberg_catalog',
+  {
+    gutenbergId: text('gutenberg_id').primaryKey(),
+    title: text('title').notNull(),
+    author: text('author').notNull(),
+    language: text('language').notNull(),
+    sourceUrl: text('source_url').notNull(),
+    importedAt: timestamp('imported_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    searchIndex: index('gutenberg_catalog_search_idx').using(
+      'gin',
+      sql`to_tsvector('simple', ${table.title} || ' ' || ${table.author})`,
+    ),
+  }),
+);
+
 export const cachedBooks = pgTable(
   'cached_books',
   {

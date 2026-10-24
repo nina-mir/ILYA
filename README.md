@@ -114,10 +114,18 @@ Open the web URL and enter an email address. In `EMAIL_MODE=console`, the six-di
 | `npm run build` | Build web and API |
 | `npm run db:up` / `npm run db:down` | Start / stop local PostgreSQL |
 | `npm run db:migrate` | Apply existing Drizzle migrations |
+| `npm run catalog:import` | Download and upsert Gutenberg's catalog for local search |
 | `npm run db:check` | Check database connectivity and table counts |
 | `npm run db:studio` | Open Drizzle Studio |
 
 ## Design and implementation notes
+
+After migrating a new database, run `npm run catalog:import` before searching.
+Search uses the local catalog, matching words across title and author, and returns
+up to 24 results. Re-run the command to refresh metadata; it updates existing IDs
+without deleting cached text or personal editions. To import a saved CSV instead,
+use `npm run catalog:import -- /absolute/path/pg_catalog.csv`. The complete file is
+validated before a transactional update, so a failed import preserves the catalog.
 
 ILYA uses linen-and-umber, print-inspired typography rather than a conventional dashboard interface. The source processing deliberately favors repeatable, deterministic cleanup over generative rewriting. A shared cached edition and a reader's editable copy are stored separately, so personal changes do not alter the common source text.
 
