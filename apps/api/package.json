@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",
+    "@ilya/shared": "^0.1.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.17",
