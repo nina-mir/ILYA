@@ -72,6 +72,7 @@ export async function fetchGutendexBook(gutenbergId: string): Promise<GutendexBo
 
   const response = await fetch(url, {
     headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(30_000),
   });
 
   if (!response.ok) {
@@ -93,6 +94,7 @@ export async function searchGutendex(query: string, limit = 24): Promise<Gutende
 
   const response = await fetch(url, {
     headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(30_000),
   });
 
   if (!response.ok) {

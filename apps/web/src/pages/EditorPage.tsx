@@ -672,7 +672,7 @@ function EditorChrome({
   onOpenContents: () => void;
   onWithdraw: () => void;
 }) {
-  const canWithdraw = !!edition && edition.status === 'ready';
+  const canWithdraw = Boolean(edition);
   return (
     <div className="editor-chrome">
       <div className="editor-chrome-row">

@@ -241,10 +241,6 @@
    in-flight imports and failed editions shouldn't tempt the reader
    into removing them while the pipeline is still working, and
    pre-empts confusing race conditions. */
-.library-row.is-pending .library-row-withdraw,
-.library-row.is-failed .library-row-withdraw {
-  display: none;
-}
 
 @media (max-width: 600px) {
   /* Mobile: visible but dimmed at all times. Position adjusted so
