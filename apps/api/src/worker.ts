@@ -1,4 +1,5 @@
 import { env } from './env';
+import { queryClient } from './db/client';
 import { claimNextJob } from './importer/claimNextJob';
 import { importBook } from './importer/importBook';
 import { completeImportJob } from './importer/completeImportJob';
@@ -67,7 +68,12 @@ async function main() {
   console.log('[worker] Stopped gracefully.');
 }
 
-main().catch((error) => {
-  console.error('[worker] Fatal error:', error);
-  process.exitCode = 1;
-});
+main()
+  .catch((error) => {
+    console.error('[worker] Fatal error:', error);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await queryClient.end({ timeout: 5 });
+    console.log('[worker] Database connections closed.');
+  });
