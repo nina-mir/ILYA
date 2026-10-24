@@ -48,7 +48,7 @@ async function main() {
     );
 
     try {
-      const book = await importBook(job.gutenbergId);
+      const book = await importBook(job.gutenbergId, job.userBookId);
 
       await completeImportJob(job, book);
 
