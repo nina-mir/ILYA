@@ -66,7 +66,12 @@ export async function sendLoginCode(emailInput: string): Promise<{ ok: true }> {
     throw new Error('A code was sent recently. Wait a moment before requesting another.');
   }
 
-  const code = generateSixDigitCode();
+  const isTestLogin =
+    process.env.NODE_ENV !== 'production' &&
+    env.EMAIL_MODE === 'console' &&
+    email.endsWith('@test.local');
+
+  const code = isTestLogin ? '000000' : generateSixDigitCode();
   const codeHash = hashSecret(`${email}:${code}`);
   const expiresAt = new Date(Date.now() + env.AUTH_CODE_TTL_MINUTES * 60 * 1000);
 
