@@ -39,7 +39,7 @@ booksRoute.post('/search-books', async (c) => {
     const books = await db.select().from(gutenbergCatalog).where(sql`
       to_tsvector('simple', ${gutenbergCatalog.title} || ' ' || ${gutenbergCatalog.author})
       @@ plainto_tsquery('simple', ${query})
-    `).orderBy(asc(gutenbergCatalog.title), asc(gutenbergCatalog.gutenbergId)).limit(24);
+    `).orderBy(asc(sql`${gutenbergCatalog.gutenbergId}::integer`)).limit(24);
     return c.json({
       results: books.map((book) => ({
         gutenbergId: book.gutenbergId,
