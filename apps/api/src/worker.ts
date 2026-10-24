@@ -61,7 +61,15 @@ async function main() {
         error,
       );
 
-      await failImportJob(job, error);
+      try {
+        await failImportJob(job, error);
+      } catch (failureError) {
+        console.error(
+          `[worker] Could not update failed job ${job.id}. ` +
+          `The job may have been deleted or withdrawn.`,
+          failureError,
+        );
+      }
     }
   }
 
