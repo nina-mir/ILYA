@@ -1,4 +1,5 @@
 # ILYA
+![Ilya, a personal classics workshop](docs/images/ILYA-share-1b.png)
 
 **A personal classics workshop.**
 
