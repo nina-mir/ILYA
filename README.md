@@ -9,10 +9,11 @@ The application runs on an independent **React + Hono + PostgreSQL** stack. Its 
 ## Features
 
 - **Private library:** Email-code sign-in and a personal shelf for each reader.
-- **Three ways to file:** Search by title or author via [Gutendex](https://gutendex.com/), paste a Project Gutenberg URL, or enter a Gutenberg ebook ID.
+- **Three ways to file:** Search by title or author in a local copy of Project Gutenberg's catalog, paste a Project Gutenberg URL, or enter a Gutenberg ebook ID.
 - **Background import:** A database-backed worker downloads plain text, processes it into Markdown, caches the source edition, and prepares a separate personal copy.
 - **Book editor:** Read and edit text with [Tiptap](https://tiptap.dev/); changes autosave to PostgreSQL.
 - **Reading experience:** Editorial typography, chapter navigation, and saved reading position.
+- **Reading settings:** Adjust font size, line width, and background lightness from the **Aa** button; choices are saved per reader.
 - **Withdrawals:** Remove an edition—including during an import—without deleting another reader's copy or the shared cache.
 
 ## Built at Kane CLI Hack Day (Oct 24, 2026)
@@ -30,7 +31,7 @@ Ilya was migrated by hand from a proprietary AI-agent platform to this stack bef
 **New on the day**
 - **Reading settings:** an **Aa** button in the editor adjusts font size, line width, and background lightness, saved per reader. Verified by Kane (KR-184, KR-189).
 - **Local catalog:** search used to call Gutendex, which kept timing out. Ilya now imports Project Gutenberg's own catalog (78,383 books) into Postgres, so search and filing work without it.
-- **Assurance loop:** `docs/requirements.md` was turned into use-cases and generated tests with Kane's `context` and `design` commands.
+- **Assurance loop:** `docs/requirements.md` was turned into use-cases and generated tests with Kane's `context` and `design` commands. The generated reload test passed at the limit values (24px / Full / 60%, KR-269), and `kane-cli cover` reports 2 of 21 reading-settings criteria proven, with the rest listed as still owed.
 
 ### Test login (development only)
 With `EMAIL_MODE=console`, any email ending in `@test.local` signs in with the code `000000`. Each new address starts with an empty shelf. This shortcut exists so Kane can sign in on its own; it is disabled in production.
@@ -55,7 +56,7 @@ This prepares fresh test data and runs the saved flows in `.testmuai/tests/` hea
 | Database | PostgreSQL 16, Drizzle ORM |
 | Authentication | Six-digit email-code login and cookie-based sessions |
 | Background work | PostgreSQL import jobs and a Node.js worker |
-| Catalogue and texts | Gutendex and Project Gutenberg |
+| Catalogue and texts | Project Gutenberg catalog (imported locally), Gutendex fallback, Project Gutenberg downloads |
 | Local development | npm workspaces, Docker Compose, concurrently |
 
 ## Repository layout
@@ -106,9 +107,21 @@ Generate a secret with `openssl rand -hex 32`. Do not commit `.env` files or act
 ### 2. Start PostgreSQL and apply migrations
 
 ```bash
+
+# Only if the system PostgreSQL service conflicts with Docker
+sudo systemctl stop postgresql
+
+# Ubuntu: start the Docker daemon if necessary
+sudo systemctl start docker
+
+# Start ILYA's PostgreSQL container
 npm run db:up
+
 npm run db:migrate
 npm run db:check
+
+# Populate the local Gutenberg catalogue on a fresh database
+npm run catalog:import
 ```
 
 Docker Compose stores database files in a persistent volume. `npm run db:down` stops the container without removing the volume. Avoid `docker compose down -v` unless you intend to delete local data.
